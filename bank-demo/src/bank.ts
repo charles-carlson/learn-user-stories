@@ -57,7 +57,10 @@ export class Bank implements BankType {
             throw new Error("User not found");
         }
         if(this.isAccountNumberValid(accountNumber)){
-            throw new Error("Account already exists");
+            throw new Error("Account number is invalid length");
+        }
+        if(this.findAccount(accountNumber)){
+            throw new Error("Account already exists")
         }
         if(age < 18){
             throw new Error("User is under the age of 18")
@@ -67,8 +70,70 @@ export class Bank implements BankType {
             id: accountNumber,
             balance: 0
         }
+        console.log(`Account created for ${username} with account number ${accountNumber}`)
         this.accounts.push(newAccount);
         return newAccount;
+    }
+
+    /**
+     * Deposits an amount of money into an account associated with the account number.
+     * @param accountNumber number representing the age of customer
+     * @param amount number representing amount of money
+     */
+    deposit(accountNumber: number, amount: number) {
+        if(amount <= 0){
+            throw Error("Amount to deposit must be greater than 0");
+        }
+        var acc = this.findAccount(accountNumber);
+        if(acc){
+            let newBalance = acc.balance + amount;
+            console.log(`Account balance at ${acc.balance} updated by ${amount}, is now ${newBalance}`);
+            acc.balance = newBalance;
+        }
+        else{
+            throw Error("Account number does not exist in system.");
+        }
+    }
+
+    /**
+     * Checks the existing balance of an account
+     * @param accountNumber the number representing the account
+     */
+    checkBalance(accountNumber: number){
+        var acc = this.findAccount(accountNumber);
+        if(acc){
+            console.log(`The balance of account:${accountNumber} is ${acc.balance}`);
+        }
+        else{
+            throw Error("Account number does not exist in system.");
+        }
+    }
+
+    /**
+     * Withdraws an amount of money from an account balance.
+     * @param accountNumber a number representing the account
+     * @param amount a number representing the amount to withdraw
+     * @returns the amount withdrawn
+     */
+    withdraw(accountNumber: number,amount:number): number {
+        if(amount <= 0){
+            throw new Error("Amount to withdraw must be greater than 0")
+        }
+        var acc = this.findAccount(accountNumber);
+        if(acc){
+            if(amount > acc.balance){
+                throw new Error("Amount to withdraw is greater than this account's balance")
+            }
+            else{
+                let withdrawnBalance = acc.balance - amount;
+                console.log(`Account ${acc.id} has a withdrawn ${amount} from their balance of ${acc.balance}, now updated too ${withdrawnBalance}.`);
+                acc.balance = withdrawnBalance;
+                return amount;
+            }
+        }
+        else{
+            throw Error("Account number does not exist in system.");
+        }
     }
 }
 
